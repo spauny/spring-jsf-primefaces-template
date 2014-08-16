@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+    <context-param>
+        <param-name>javax.faces.PROJECT_STAGE</param-name>
+        <!--        <param-value>Development</param-value>-->
+        <param-value>Production</param-value>
+    </context-param>
+    <servlet>
+        <servlet-name>Faces Servlet</servlet-name>
+        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <!-- Spring Context Configuration' s Path definition -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+            /WEB-INF/applicationContext.xml
+        </param-value>
+    </context-param>
+    
+    <context-param>
+        <param-name>primefaces.THEME</param-name>
+        <param-value>overcast</param-value>
+    </context-param>
+    
+    <context-param>
+        <param-name>primefaces.CLIENT_SIDE_VALIDATION</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    
+    <context-param>
+        <param-name>primefaces.TRANSFORM_METADATA</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    
+    <!-- The Bootstrap listener to start up and shut down Spring's root WebApplicationContext. It is registered to Servlet Container -->
+    <listener>
+        <listener-class>
+            org.springframework.web.context.ContextLoaderListener
+        </listener-class>
+    </listener>
+    <listener>
+        <listener-class>
+            org.springframework.web.context.request.RequestContextListener
+        </listener-class>
+    </listener>
+    
+    <context-param>
+        <param-name>javax.faces.DATETIMECONVERTER_DEFAULT_TIMEZONE_IS_SYSTEM_TIMEZONE</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>/faces/*</url-pattern>
+    </servlet-mapping>
+    <!-- Mapping with servlet and url for the http requests. -->
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.jsf</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.htm</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.xhtml</url-pattern>
+    </servlet-mapping>
+    
+    
+    <!-- Omnifaces Application Filters -->
+    <filter>
+        <filter-name>characterEncodingFilter</filter-name>
+        <filter-class>org.omnifaces.filter.CharacterEncodingFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>characterEncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>facesExceptionFilter</filter-name>
+        <filter-class>org.omnifaces.filter.FacesExceptionFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>facesExceptionFilter</filter-name>
+        <servlet-name>facesServlet</servlet-name>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>gzipResponseFilter</filter-name>
+        <filter-class>org.omnifaces.filter.GzipResponseFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>gzipResponseFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>ERROR</dispatcher>
+    </filter-mapping>
+    
+    
+    <session-config>
+        <session-timeout>
+            60
+        </session-timeout>
+    </session-config>
+    <welcome-file-list>
+        <welcome-file>pages/homepage.xhtml</welcome-file>
+    </welcome-file-list>
+</web-app>

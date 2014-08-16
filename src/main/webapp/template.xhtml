@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui" 
+      xmlns:o="http://omnifaces.org/ui">
+
+    <f:view contentType="text/html">
+        <h:head>
+            <f:facet name="first">
+                <meta content='text/html; charset=UTF-8' http-equiv="Content-Type"/>
+                <title>Spring Jsf PF Template</title>
+
+                <link type="text/css" rel="stylesheet" href="#{request.contextPath}/css/style.css" />
+
+                <h:outputScript library="primefaces" name="jquery/jquery.js" target="head" />
+            </f:facet>
+
+            <f:facet name="last">
+                <script type="text/javascript" src="#{request.contextPath}/javascript/main.js"  />
+            </f:facet>
+        </h:head>
+
+        <h:body onmouseover="window.focus()">
+
+            <p:layout fullPage="true">
+
+                <p:growl id="messages" autoUpdate="true" showDetail="false" globalOnly="true" />
+
+                <p:layoutUnit position="north" size="80" resizable="true" closable="true" collapsible="true">
+                    <div align="center">
+                        <h2>Spring Jsf Primefaces Template <sup style="font-size: smaller">beta</sup></h2>
+                    </div>
+                </p:layoutUnit>
+
+                <p:layoutUnit position="west" size="150" header="Tools" collapsible="true">
+                    <p:menu style="width: 90%;" >
+                        <p:submenu label="Menu">
+                            <p:menuitem value="Homepage" url="/pages/homepage.xhtml" />
+                        </p:submenu>
+                    </p:menu>
+                </p:layoutUnit>
+
+                <p:layoutUnit position="center">
+                    <ui:insert name="content">I don't know how you arrived here. Eh, I don't care...</ui:insert>
+                </p:layoutUnit>
+
+                <p:layoutUnit position="south" size="30" closable="true" collapsible="true">
+                    template by @iulian.dafinoiu
+                </p:layoutUnit>
+
+            </p:layout>
+
+        </h:body>
+
+    </f:view>
+</html>
+

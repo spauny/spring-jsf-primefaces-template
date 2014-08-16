@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<ui:composition template="../template.xhtml"   
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui" 
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                xmlns:o="http://omnifaces.org/ui">
+
+    <ui:define name="content">
+        <div align="center">
+            <h3>Complex template</h3>
+        </div>
+        <br/>
+        <div align="center">
+            <o:form id="hobbyForm" style="width: 90%"> 
+                <p:messages autoUpdate="true" severity="info,warn,error" for="hobbyMessages" closable="true" />
+                <br/>
+                <p:outputLabel value="What pleasures you? " />
+                <p:inputText value="#{hobbyHandler.hobby}" size="100" validatorMessage="Please insert a valid hobby" required="true" 
+                             requiredMessage="Please insert a valid hobby">
+                    <f:validateLength minimum="3" />
+                </p:inputText> &nbsp;
+                <p:commandButton value="Make it official" action="#{hobbyHandler.insertHobby()}" update="@form" validateClient="true" process="@form"
+                                 onstart="PF('hobbyInfoMask').block();" oncomplete="PF('hobbyInfoMask').unblock();" />
+
+                <pe:blockUI widgetVar="hobbyInfoMask" target="foundHobbies,maskEmptyPanel" >
+                    LOADING<br />
+                    <p:graphicImage value="/images/searching.gif"/>
+                </pe:blockUI>
+                <br/>
+                <br/>
+
+                <p:panel style="border: none; width: 90%; height: 90%; background: transparent" id="maskEmptyPanel" rendered="#{empty hobbyHandler.hobbies}">
+
+                </p:panel>
+
+                <p:dataTable rendered="#{not empty hobbyHandler.hobbies}" var="hobby" value="#{hobbyHandler.hobbies}" style="width: 90%"
+                             paginator="true" id="foundHobbies" rows="10" rowIndexVar="rowIndex">
+                    <f:facet name="header">
+                        <h:outputText value="Your hobbies" />
+                    </f:facet>
+                    <p:column headerText="Hobby" >
+                        <h:outputText value="#{hobby}" />
+                    </p:column>
+
+                    <f:facet name="footer">
+                        Found #{fn:length(hobbyHandler.hobbies)} hobbies
+                    </f:facet>
+                </p:dataTable>
+
+            </o:form>
+
+        </div>
+    </ui:define>
+</ui:composition>
+
