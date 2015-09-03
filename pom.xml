@@ -3,16 +3,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>gamesys.studiocd</groupId>
-    <artifactId>device-list</artifactId>
-    <version>1.0</version>
+    <artifactId>groovylist</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <name>Device List</name>
+    <name>GroovyList</name>
 
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>4.1.2.RELEASE</spring.version>
+        <spring.version>4.2.0.RELEASE</spring.version>
         <slf4j.version>1.7.7</slf4j.version>
     </properties>
     
@@ -33,7 +33,7 @@
         <dependency>
             <groupId>org.primefaces</groupId>
             <artifactId>primefaces</artifactId>
-            <version>5.3-SNAPSHOT</version>
+            <version>5.2</version>
         </dependency>
         <dependency>
             <groupId>org.omnifaces</groupId>
@@ -44,13 +44,13 @@
         <dependency>
             <groupId>org.primefaces.extensions</groupId>
             <artifactId>primefaces-extensions</artifactId>
-            <version>3.1.0</version>
+            <version>3.2.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.primefaces.extensions</groupId>
             <artifactId>resources-ckeditor</artifactId>
-            <version>3.1.0</version>
+            <version>3.2.0</version>
         </dependency>
         
         <dependency>  
@@ -62,7 +62,7 @@
         <dependency>
             <groupId>org.primefaces.extensions</groupId>
             <artifactId>resources-codemirror</artifactId>
-            <version>3.1.0</version>
+            <version>3.2.0</version>
         </dependency>
         
         <!-- Spring 3 dependencies -->
