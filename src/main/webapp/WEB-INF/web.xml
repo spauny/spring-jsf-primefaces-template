@@ -12,10 +12,15 @@
     </servlet>
     <!-- Spring Context Configuration' s Path definition -->
     <context-param>
-        <param-name>contextConfigLocation</param-name>
+        <param-name>contextClass</param-name>
         <param-value>
-            /WEB-INF/applicationContext.xml
+            org.springframework.web.context.support.AnnotationConfigWebApplicationContext
         </param-value>
+    </context-param>
+    
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>gamesys.studiocd.smarthound.app.config.AppConfig</param-value>
     </context-param>
     
     <context-param>
@@ -106,6 +111,6 @@
         </session-timeout>
     </session-config>
     <welcome-file-list>
-        <welcome-file>pages/homepage.xhtml</welcome-file>
+        <welcome-file>pages/dashboard.xhtml</welcome-file>
     </welcome-file-list>
 </web-app>

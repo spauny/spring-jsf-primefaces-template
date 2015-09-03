@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<ui:composition template="template/template.xhtml"   
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui" 
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                xmlns:o="http://omnifaces.org/ui">
+
+    <ui:define name="content">
+        <o:onloadScript>
+            document.getElementById('prevDevicesMenuItem').style.fontWeight = 'bold';
+            document.getElementById('prevDevicesMenuItem').style.color = 'blue';
+        </o:onloadScript>
+
+        <style>
+            .ui-datatable-odd {
+                background-color: #bdecfc !important;
+            }
+
+            .ui-datatable-header {
+                height: 25px !important;
+            }
+        </style>
+
+        <div align="center">
+            #{excelAnalyzer.setLastMonth(true)}
+            <p:panel style="width: 95%; margin: 10px;" id="uploadAndReadExcelPanel" header="Upload and analyze excel" toggleable="true" collapsed="true">
+                <o:form id="uploadExcelForm">
+                    Sheet number: <p:inplace emptyLabel="No Sheet Selected" editor="true"> <p:inputText value="0" maxlength="2" size="2" /> </p:inplace>
+                    &nbsp;<h3>Upload Excel File (supported formats are .xls and .xlsx) - drag &amp; drop supported in this area </h3> &nbsp;
+
+                    <p:fileUpload fileUploadListener="#{fileUploadAnalyzer.handleFileUpload}" mode="advanced" dragDropSupport="true" fileLimit="10"
+                                  fileLimitMessage="Only one file per upload allowed" auto="true" sizeLimit="10000000" 
+                                  allowTypes="/(\.|\/)(xls|xlsx)$/" onstart="PF('analyzingDialogVar').show();" />  
+                </o:form>
+            </p:panel>
+        </div>
+
+        <p:dialog modal="true" widgetVar="analyzingDialogVar" header="" width="400" height="320" dynamic="false"
+                  draggable="false" closable="false" appendTo="@(body)">  
+            <o:form id="analysingDialogForm">
+                <div align="center"><h2>Analyzing excel...</h2></div> <br/><br/>
+                <div align="center"><p:graphicImage value="/images/loading.gif" width="200" height="150" /></div>  
+                <br/>
+                <div align="center">
+                    <h:outputText rendered="#{fileUploadAnalyzer.analyseFinished}" value="Finished analysing file " />
+                </div>
+            </o:form>
+        </p:dialog>  
+
+    </ui:define>
+</ui:composition>
+

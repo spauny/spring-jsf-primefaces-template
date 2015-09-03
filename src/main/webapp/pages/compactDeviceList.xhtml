@@ -1,0 +1,178 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<ui:composition template="template/template.xhtml"   
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:fn="http://xmlns.jcp.org/jsp/jstl/functions"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui" 
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                xmlns:o="http://omnifaces.org/ui">
+
+    <ui:define name="content">
+        <o:onloadScript>
+            document.getElementById('compactDevicesMenuItem').style.fontWeight = 'bold';
+            document.getElementById('compactDevicesMenuItem').style.color = 'blue';
+        </o:onloadScript>
+
+        <div align="center">
+            <o:form id="listProjectsForm" style="width: 95%"> 
+                <pe:blockUI widgetVar="deviceListMask" target="deviceDT" centerY="true" >
+                    LOADING<br />
+                    <p:graphicImage value="/images/searching.gif"/>
+                </pe:blockUI>
+
+                <style>
+                    .ui-treetable-header {
+                        height: 22px;
+                    }
+
+                    .ui-treetable-footer {
+                        height: 22px;
+                    }
+                    
+                    .ui-treetable-scrollable-theadclone {
+                        display: none
+                    }
+                    
+                </style>
+
+                <p:treeTable id="deviceDT" value="#{compactListController.root}" var="device" selection="#{compactListController.selectedNode}" scrollable="true" scrollWidth="100%" scrollHeight="700"
+                             selectionMode="single" sortBy="#{device.theoRank}" >
+                    <f:facet name="header">
+                        <p:outputLabel for="theoPercent" value="Filter by Theo HW: " style="float: left; margin-top: 5px;" />
+                        <p:selectOneMenu id="theoPercent" value="#{compactListController.theoHWPercent}" style="width:125px; float: left; margin-left: 5px; bottom: 2px;" disabled="false">
+                            <p:ajax event="change" listener="#{compactListController.refreshDevices()}" update="@form" />
+                            <f:selectItem itemLabel="100%" itemValue="100" />
+                            <f:selectItem itemLabel="90%" itemValue="90" />
+                            <f:selectItem itemLabel="80%" itemValue="80" />
+                            <f:selectItem itemLabel="70%" itemValue="70" />
+                            <f:selectItem itemLabel="60%" itemValue="60" />
+                            <f:selectItem itemLabel="50%" itemValue="50" />
+                        </p:selectOneMenu>
+                        <h:outputText value="Compact Device List" style="margin-top: 5px" />
+                        <p:commandButton value="Go" actionListener="#{compactListController.refreshDevices()}" onclick="PF('deviceListMask').block();" 
+                                         oncomplete="PF('deviceListMask').unblock();" update="@form"
+                                         process="@this searchByInput" style="float: right; bottom: 0px; margin-left: 3px; padding-left: 3px;" />
+                        <p:inputText id="searchByInput" value="#{compactListController.searchBy}" style="padding: 0px; height: 20px; margin: 0px; float: right" />
+                        <h:outputText value="Search By: " style="margin-top: 3px; margin-right: 5px; float: right; bottom: 2px;" />
+                    </f:facet>
+                    <p:column headerText="Name" sortBy="#{device.marketingName}" filterBy="#{device.marketingName}" >
+                        <h:outputText id="deviceName" value="#{device.marketingName}" />
+                        <p:tooltip value="#{device.marketingName}" for="deviceName" />
+                    </p:column>
+                    <p:column headerText="OS Name" sortBy="#{device.osName}" filterBy="#{device.osName}" >
+                        <h:outputText value="#{device.osName}" />
+                    </p:column>
+                    <p:column headerText="OS Version" sortBy="#{device.osVersion}" filterBy="#{device.osVersion}" >
+                        <h:outputText value="#{device.osVersion}" />
+                    </p:column>
+                    <p:column headerText="Total Actives" sortBy="#{device.totalActives}" filterBy="#{device.totalActives}" >
+                        <h:outputText value="#{device.totalActives}" >
+                            <f:convertNumber pattern="#" />
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="VIPs" sortBy="#{device.vips}" filterBy="#{device.vips}" >
+                        <h:outputText value="#{device.vips}" >
+                            <f:convertNumber pattern="#" />
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Theo HW" sortBy="#{device.theoreticalHW}" filterBy="#{device.theoreticalHW}" >
+                        £ <h:outputText value="#{device.theoreticalHW}" >
+                            <f:convertNumber groupingUsed="true" maxFractionDigits="2" />
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Theo HW %" sortBy="#{device.percentageTheo}" filterBy="#{device.percentageTheo}" >
+                        <h:outputText value="#{device.percentageTheo * 100}" >
+                            <f:convertNumber pattern="#.##" />
+                        </h:outputText> %
+                    </p:column>
+                    <p:column headerText="Theo HW Rank" sortBy="#{device.theoRank}" filterBy="#{device.theoRank}" >
+                        <h:outputText value="#{device.theoRank}" >
+                            <f:convertNumber pattern="#" />
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="" width="16" style="width: 16px;" >
+                        <p:commandLink actionListener="#{compactListController.setSelectedDeviceInfo(device)}" action="#{compactListController.createLineModels()}"
+                                       oncomplete="PF('deviceCompInfoWar').show();" update=":deviceCompInfoForm">
+                            <p:graphicImage value="/images/#{device.rankStatus gt 0 ? 'green_up_arrow.gif' : device.rankStatus lt 0 ? 'red_down_arrow.gif' : 'same_arrow.gif'}" />
+                        </p:commandLink>
+                    </p:column>
+
+                </p:treeTable>
+
+            </o:form>
+
+            <p:dialog closeOnEscape="true" minWidth="700" minHeight="400" widgetVar="deviceCompInfoWar">
+                <o:form id="deviceCompInfoForm">
+                    <p:panelGrid columns="6" rendered="#{not empty compactListController.selectedDeviceInfo}">
+                        <f:facet name="header">
+                            #{compactListController.selectedDeviceInfo.firstDevice.marketingName} | #{compactListController.selectedDeviceInfo.firstDevice.osName} | #{compactListController.selectedDeviceInfo.firstDevice.osVersion}
+                        </f:facet>
+                        <h:outputText value="" />
+                        <h:outputText value="Total Actives" />
+                        <h:outputText value="VIPs" />
+                        <h:outputText value="Theo HW" />
+                        <h:outputText value="Theo HW %" />
+                        <h:outputText value="Rank" />
+
+                        <h:outputText value="This Month" style="color: green" />
+                        <h:outputText value="#{compactListController.selectedDeviceInfo.firstDevice.totalActives}" style="color: green" >
+                            <f:convertNumber pattern="#" />
+                        </h:outputText>
+                        <h:outputText value="#{compactListController.selectedDeviceInfo.firstDevice.vips}" style="color: green" >
+                            <f:convertNumber pattern="#" />
+                        </h:outputText>
+                        <h:outputText value="#{compactListController.selectedDeviceInfo.firstDevice.theoreticalHW}" style="color: green" >
+                            <f:convertNumber groupingUsed="true" maxFractionDigits="2" />
+                        </h:outputText>
+                        <h:outputText value="#{compactListController.selectedDeviceInfo.firstDevice.percentageTheo * 100}" style="color: green" >
+                            <f:convertNumber pattern="#.##" />
+                        </h:outputText>
+                        <h:outputText value="#{compactListController.selectedDeviceInfo.firstDevice.theoRank}" style="color: green" >
+                            <f:convertNumber pattern="#" />
+                        </h:outputText>
+
+                        <h:outputText value="Last Month" style="color: blue" />
+                        <h:outputText value="#{compactListController.selectedDeviceInfo.previousMonths[0].totalActives}" style="color: blue" >
+                            <f:convertNumber pattern="#" />
+                        </h:outputText>
+                        <h:outputText value="#{compactListController.selectedDeviceInfo.previousMonths[0].vips}" style="color: blue" >
+                            <f:convertNumber pattern="#" />
+                        </h:outputText>
+                        <h:outputText value="#{compactListController.selectedDeviceInfo.previousMonths[0].theoreticalHW}" style="color: blue" >
+                            <f:convertNumber groupingUsed="true" maxFractionDigits="2" />
+                        </h:outputText>
+                        <h:outputText value="#{compactListController.selectedDeviceInfo.previousMonths[0].percentageTheo * 100}" style="color: blue" >
+                            <f:convertNumber pattern="#.##" />
+                        </h:outputText>
+                        <h:outputText value="#{compactListController.selectedDeviceInfo.previousMonths[0].theoRank}" style="color: blue" >
+                            <f:convertNumber pattern="#" />
+                        </h:outputText>
+                    </p:panelGrid>
+
+                    <br/>
+                    <p:separator />
+                    <br/>
+
+                    <p:selectOneMenu id="console" value="#{compactListController.showChart}" style="width:125px; float: right; margin-right: 5px; margin-left: 5px;">
+                        <p:ajax event="change" update="@form" />
+                        <f:selectItem itemLabel="Theo HW" itemValue="1" />
+                        <f:selectItem itemLabel="Theo Rank" itemValue="2" />
+                        <f:selectItem itemLabel="Total Actives" itemValue="3" />
+                    </p:selectOneMenu>
+                    <h:outputText value="View Chart:" style="float: right; top: 4px; margin-top: 3px;" />
+                    <br/>
+                    <p:separator />
+                    <br/>
+
+                    <p:chart type="line" model="#{compactListController.theoHWLineModel}" style="height:300px;" rendered="#{compactListController.showChart eq 1}"/>
+                    <p:chart type="line" model="#{compactListController.theoRankLineModel}" style="height:300px;" rendered="#{compactListController.showChart eq 2}"/>
+                    <p:chart type="line" model="#{compactListController.totalActivesLineModel}" style="height:300px;" rendered="#{compactListController.showChart eq 3}"/>
+                </o:form>
+            </p:dialog>
+        </div>
+
+    </ui:define>
+</ui:composition>
+

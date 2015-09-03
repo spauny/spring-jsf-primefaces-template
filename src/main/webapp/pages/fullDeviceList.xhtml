@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<ui:composition template="template/template.xhtml"   
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui" 
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                xmlns:o="http://omnifaces.org/ui">
+
+    <ui:define name="content">
+        <o:onloadScript>
+            document.getElementById('fullDevicesMenuItem').style.fontWeight = 'bold';
+            document.getElementById('fullDevicesMenuItem').style.color = 'blue';
+        </o:onloadScript>
+
+        <style>
+            .ui-datatable-odd {
+                background-color: #bdecfc !important;
+            }
+
+            .ui-datatable-header {
+                height: 25px !important;
+            }
+        </style>
+
+        <div align="center">
+            #{excelAnalyzer.setLastMonth(false)}
+            <p:panel style="width: 95%; margin: 10px;" id="uploadAndReadExcelPanel" header="Upload and analyze excel" toggleable="true" collapsed="true">
+                <o:form id="uploadExcelForm">
+                    Sheet number: <p:inplace emptyLabel="No Sheet Selected" editor="true"> <p:inputText value="0" maxlength="2" size="2" /> </p:inplace>
+                    &nbsp;<h3>Upload Excel File (supported formats are .xls and .xlsx) - drag &amp; drop supported in this area </h3> &nbsp;
+
+                    <p:fileUpload fileUploadListener="#{fileUploadAnalyzer.handleFileUpload}" mode="advanced" dragDropSupport="true" fileLimit="10"
+                                  fileLimitMessage="Only one file per upload allowed" auto="true" sizeLimit="10000000" 
+                                  allowTypes="/(\.|\/)(xls|xlsx)$/" onstart="PF('analyzingDialogVar').show(); PF('hobbyInfoMask').block();" />  
+                </o:form>
+            </p:panel>
+
+            <o:form id="deviceForm" style="width: 95%"> 
+
+                <pe:blockUI widgetVar="hobbyInfoMask" target="foundDevices" >
+                    LOADING<br />
+                    <p:graphicImage value="/images/searching.gif"/>
+                </pe:blockUI>
+                <br/>
+
+                <p:dataTable  var="device" value="#{globalManager.entireDeviceList}" style="width: 100%" scrollable="false" scrollWidth="1300" filteredValue="#{excelAnalyzer.filteredDeviceList}"
+                              paginator="true" id="foundDevices" rows="20" rowIndexVar="rowIndex">
+                    <f:facet name="header">
+                        <p:outputLabel for="console" value="Filter by Theo HW: " style="float: left; margin-top: 5px;" />
+                        <p:selectOneMenu id="console" value="#{excelAnalyzer.theoHWPercent}" style="width:125px; float: left; margin-left: 5px;">
+                            <p:ajax event="change" />
+                            <f:selectItem itemLabel="100%" itemValue="100" />
+                            <f:selectItem itemLabel="90%" itemValue="90" />
+                            <f:selectItem itemLabel="80%" itemValue="80" />
+                            <f:selectItem itemLabel="70%" itemValue="70" />
+                            <f:selectItem itemLabel="60%" itemValue="60" />
+                            <f:selectItem itemLabel="50%" itemValue="50" />
+                        </p:selectOneMenu>
+                        <!--<h:outputText value="Awesome Device List" />-->
+                    </f:facet>
+
+                    <p:column headerText="Territory" sortBy="#{device.territory}" filterBy="#{device.territory}" >
+                        <h:outputText value="#{device.territory}" />
+                    </p:column>
+                    <p:column headerText="Name" sortBy="#{device.marketingName}" filterBy="#{device.marketingName}" >
+                        <h:outputText value="#{device.marketingName}" />
+                    </p:column>
+                    <p:column headerText="OS Name" sortBy="#{device.osName}" filterBy="#{device.osName}" >
+                        <h:outputText value="#{device.osName}" />
+                    </p:column>
+                    <p:column headerText="OS Version" sortBy="#{device.osVersion}" filterBy="#{device.osVersion}" >
+                        <h:outputText value="#{device.osVersion}" />
+                    </p:column>
+                    <p:column headerText="Total Actives" sortBy="#{device.totalActives}" filterBy="#{device.totalActives}" >
+                        <h:outputText value="#{device.totalActives}" >
+                            <f:convertNumber pattern="#" />
+                        </h:outputText>
+                    </p:column>
+                    <!--                    <p:column headerText="ACTIVES %"  >
+                                            <h:outputText value="#{device.totalActives / excelAnalyzer.totalActives * 100}" >
+                                                <f:convertNumber pattern="#.##" />
+                                            </h:outputText> %
+                                        </p:column>-->
+                    <p:column headerText="VIPs" sortBy="#{device.vips}" filterBy="#{device.vips}" >
+                        <h:outputText value="#{device.vips}" >
+                            <f:convertNumber pattern="#" />
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Theo HW" sortBy="#{device.theoreticalHW}" filterBy="#{device.theoreticalHW}" >
+                        <h:outputText value="#{device.theoreticalHW}" >
+                            <f:convertNumber pattern="#.##" />
+                        </h:outputText> £
+                    </p:column>
+                    <p:column headerText="Theo HW Rank" sortBy="#{device.theoRank}" filterBy="#{device.theoRank}" >
+                        <h:outputText value="#{device.theoRank}" >
+                            <f:convertNumber pattern="#" />
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Theo HW %" sortBy="#{device.percentageTheo}" filterBy="#{device.percentageTheo}" >
+                        <h:outputText value="#{device.percentageTheo * 100}" >
+                            <f:convertNumber pattern="#.##" />
+                        </h:outputText> %
+                    </p:column>
+
+                    <f:facet name="footer">
+                        Found #{fn:length(globalManager.entireDeviceList)} devices
+                    </f:facet>
+                </p:dataTable>
+
+            </o:form>
+
+        </div>
+        <p:dialog modal="true" widgetVar="analyzingDialogVar" header="" width="400" height="320" dynamic="false"
+                  draggable="false" closable="false" appendTo="@(body)">  
+            <o:form id="analysingDialogForm">
+                <div align="center"><h2>Analyzing excel...</h2></div> <br/><br/>
+                <div align="center"><p:graphicImage value="/images/loading.gif" width="200" height="150" /></div>  
+                <br/>
+                <div align="center">
+                    <h:outputText rendered="#{fileUploadAnalyzer.analyseFinished}" value="Finished analysing file -> " />
+                    <p:commandButton value="View Changes" onclick="PF('analyzingDialogVar').hide();
+                            PF('hobbyInfoMask').unblock();" update=":deviceForm"
+                                     rendered="#{fileUploadAnalyzer.analyseFinished}"  />
+                </div>
+            </o:form>
+        </p:dialog>  
+
+    </ui:define>
+</ui:composition>
+

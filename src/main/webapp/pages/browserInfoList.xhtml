@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<ui:composition template="template/template.xhtml"   
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui" 
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                xmlns:o="http://omnifaces.org/ui">
+
+    <ui:define name="content">
+        <o:onloadScript>
+            document.getElementById('browserInfoMenuItem').style.fontWeight = 'bold';
+            document.getElementById('browserInfoMenuItem').style.color = 'blue';
+        </o:onloadScript>
+
+        <style>
+            .ui-datatable-odd {
+                background-color: #bdecfc !important;
+            }
+
+            .ui-datatable-header {
+                height: 25px !important;
+            }
+        </style>
+
+        <div align="center">
+            <o:form id="deviceForm" style="width: 95%"> 
+
+                <p:outputLabel for="console" value="OS: " style="float: left; margin-top: 7px; margin-left: 10px; color: white" />
+                <p:selectOneMenu id="console" value="#{excelAnalyzer.showIOS}" style="width:125px; float: left; margin-left: 5px; margin-top: 3px;">
+                    <p:ajax event="change" update="@form" />
+                    <f:selectItem itemLabel="iOS" itemValue="#{true}" />
+                    <f:selectItem itemLabel="Android" itemValue="#{false}" />
+                </p:selectOneMenu>
+                <p:dataTable  var="browser" value="#{globalManager.androidBrowsersInfo}" style="width: 100%" scrollable="false" scrollWidth="1300" filteredValue="#{androidBrowserExcelAnalyzer.filteredAndroidBrowserList}"
+                              paginator="true" id="foundAndroidBrowser" rows="20" rowIndexVar="rowIndex" rendered="#{not excelAnalyzer.showIOS}">
+                    <f:facet name="header">
+                        <h:outputText value="Browser Info" />
+                    </f:facet>
+
+                    <p:column headerText="Territory" sortBy="#{browser.territory}" filterBy="#{browser.territory}"  >
+                        <h:outputText value="#{browser.territory}" />
+                    </p:column>
+                    <p:column headerText="Name" sortBy="#{browser.browserName}" filterBy="#{browser.browserName}" filterMatchMode="contains" >
+                        <h:outputText value="#{browser.browserName}" />
+                    </p:column>
+                    <p:column headerText="Version" sortBy="#{browser.browserVersion}" filterBy="#{browser.browserVersion}" >
+                        <h:outputText value="#{browser.browserVersion}" />
+                    </p:column>
+                    <p:column headerText="Unique Members" sortBy="#{browser.uniqueMembers}" filterBy="#{browser.uniqueMembers}" >
+                        <h:outputText value="#{browser.uniqueMembers}" >
+                            <f:convertNumber pattern="#" />
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Theo HW" sortBy="#{browser.theoreticalHW}" filterBy="#{browser.theoreticalHW}" >
+                        <h:outputText value="#{browser.theoreticalHW}" >
+                            <f:convertNumber groupingUsed="true" maxFractionDigits="2" />
+                        </h:outputText> £
+                    </p:column>
+
+                    <f:facet name="footer">
+                        Found #{fn:length(globalManager.androidBrowsersInfo)} browsers
+                    </f:facet>
+                </p:dataTable>
+
+                <p:dataTable  var="browser" value="#{globalManager.iosBrowsersInfo}" style="width: 100%" scrollable="false" scrollWidth="1300" filteredValue="#{iosBrowserExcelAnalyzer.filteredAndroidBrowserList}"
+                              paginator="true" id="foundIOSBrowser" rows="20" rowIndexVar="rowIndex" rendered="#{excelAnalyzer.showIOS}">
+                    <f:facet name="header">
+                        <h:outputText value="Browser Info" />
+                    </f:facet>
+
+                    <p:column headerText="Territory" sortBy="#{browser.territory}" filterBy="#{browser.territory}" >
+                        <h:outputText value="#{browser.territory}" />
+                    </p:column>
+                    <p:column headerText="Name" sortBy="#{browser.browserName}" filterBy="#{browser.browserName}"  filterMatchMode="contains" >
+                        <h:outputText value="#{browser.browserName}" />
+                    </p:column>
+                    <p:column headerText="Version" sortBy="#{browser.browserVersion}" filterBy="#{browser.browserVersion}" >
+                        <h:outputText value="#{browser.browserVersion}" />
+                    </p:column>
+                    <p:column headerText="Unique Members" sortBy="#{browser.uniqueMembers}" filterBy="#{browser.uniqueMembers}" >
+                        <h:outputText value="#{browser.uniqueMembers}" >
+                            <f:convertNumber pattern="#" />
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Theo HW" sortBy="#{browser.theoreticalHW}" filterBy="#{browser.theoreticalHW}" >
+                        <h:outputText value="#{browser.theoreticalHW}" >
+                            <f:convertNumber groupingUsed="true" maxFractionDigits="2" />
+                        </h:outputText> £
+                    </p:column>
+
+                    <f:facet name="footer">
+                        Found #{fn:length(globalManager.iosBrowsersInfo)} browsers
+                    </f:facet>
+                </p:dataTable>
+
+            </o:form>
+
+        </div>
+    </ui:define>
+</ui:composition>
+

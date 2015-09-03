@@ -1,0 +1,277 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<ui:composition template="template/template.xhtml"   
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:fn="http://xmlns.jcp.org/jsp/jstl/functions"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui" 
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                xmlns:o="http://omnifaces.org/ui">
+
+    <ui:define name="content">
+        <o:onloadScript>
+            document.getElementById('dashboardMenuItem').style.fontWeight = 'bold';
+            document.getElementById('dashboardMenuItem').style.color = 'blue';
+        </o:onloadScript>
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                document.getElementById('hiddenScreenWidth').value = $(window).width();
+                document.getElementById('initDashboardButton').click();
+
+            });
+        </script>
+
+        <style>
+            .ui-datatable-odd {
+                background-color: #bdecfc !important;
+            }
+
+            #top30DevicesPanel_content {
+                height: 300px;
+                overflow: auto;
+            }
+
+            #top30EmergingDevicesPanel_content {
+                height: 300px;
+                overflow: auto;
+            }
+            
+            .jqplot-highlighter-tooltip {
+                display: block !important;
+            }
+
+        </style>
+
+        <o:form id="dashboardForm" style="width: 99%" prependId="false"> 
+            <h:inputHidden id="hiddenScreenWidth" value="#{dashboardController.screenWidth}" />
+            <p:commandButton id="initDashboardButton" style="visibility: hidden" process="@this hiddenScreenWidth" update="@form" actionListener="#{dashboardController.init()}" />
+
+            <p:messages autoUpdate="true" severity="info,warn,error" for="dashboardMessages" id="dashboardMessages" closable="true" />
+
+            <p:dashboard id="board" model="#{dashboardController.model}" style="width: 99%">
+                <p:panel id="top30DevicesPanel" header="Top 30 Devices (July) - UK" style="min-width: 590px; width: 590px; margin-left: 10px; margin-bottom: 20px;" closable="true" toggleable="true" >
+                    <p:dataTable id="top30DevicesDT" value="#{dashboardController.top30Devices}" var="device" 
+                                 style="width: 100%" styleClass="preparedRecipesTable">
+                        <p:column headerText="Name" width="45%">
+                            <h:outputText id="name" value="#{device.marketingName} (#{device.osName}, #{device.osVersion})" />
+                            <p:tooltip value="#{device.marketingName} (#{device.osName}, #{device.osVersion})" for="name" />
+                        </p:column>
+                        <p:column headerText="Active" sortBy="#{device.totalActives}" width="55" >
+                            <h:outputText value="#{device.totalActives}" >
+                                <f:convertNumber pattern="#" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="VIP" sortBy="#{device.vips}" width="40" >
+                            <h:outputText value="#{device.vips}" >
+                                <f:convertNumber pattern="#" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Theo HW" sortBy="#{device.theoreticalHW}" >
+                            £ <h:outputText value="#{device.houseWin}" >
+                                <f:convertNumber groupingUsed="true" maxFractionDigits="2" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="" width="16" style="width: 16px;" >
+                            <p:commandLink actionListener="#{compactListController.setSelectedDeviceInfo(device)}" action="#{compactListController.createLineModels()}"
+                                           oncomplete="PF('deviceCompInfoWar').show();" update=":deviceCompInfoForm">
+                                <p:graphicImage value="/images/#{device.rankStatus gt 0 ? 'green_up_arrow.gif' : device.rankStatus lt 0 ? 'red_down_arrow.gif' : 'same_arrow.gif'}" />
+                            </p:commandLink>
+                        </p:column>
+                    </p:dataTable>
+                    <f:facet name="footer">
+                        <p:button id="expandFirstPanel" style="float: right; margin-right: 10px;" icon="ui-icon-circle-triangle-s" value="Expand" widgetVar="expandFirstPanelWar" 
+                                  onclick="return manageExpandCollapseFirstPanel()" />
+                        <br/>
+                    </f:facet>
+                </p:panel>
+
+                <p:panel id="top30EmergingDevicesPanel" header="Trends: Top 30 Emerging/Fading Devices (July) - UK" style="min-width: 670px; width: 670px; margin-left: 20px; margin-bottom: 20px;" closable="true" toggleable="true" >
+<!--                    <p:outputLabel value="Legend: " style="float: left; margin-top: 5px;" />
+                    <p:outputLabel value="Amazing change" style="float: left; margin-top: 5px; color: red; margin-left: 5px" />
+                    <p:outputLabel value="Big change" style="float: left; margin-top: 5px; color: blue; margin-left: 10px;" />-->
+
+                    <p:inputSwitch value="#{dashboardController.viewEmerging}" style="float: right" onchange="changeGridsDisplayStatus('top30EmergingDevicesDT', 'top30FadingDevicesDT');" 
+                                   required="false" onLabel="Top" offLabel="Bottom" />
+                    <p:outputLabel value="View: " style="float: right; margin-top: 5px; margin-right: 5px;" />
+                    <br/>
+                    <br/>
+                    <p:dataTable id="top30EmergingDevicesDT" value="#{dashboardController.top30EmergingDevices}" var="device" 
+                                 style="width: 100%;">
+                        <p:column headerText="Name" width="40%" >
+                            <h:outputText id="name" value="#{device.marketingName} (#{device.osName}, #{device.osVersion})" 
+                                          style="color: #{device.theoHWDiffFromLastMonth / device.previousMonths.get(0).theoreticalHW * 100 gt 400 ? 'green' : device.theoHWDiffFromLastMonth / device.previousMonths.get(0).theoreticalHW * 100 gt 200 ? 'blue' : ''}" />
+                            <p:tooltip value="#{device.marketingName} (#{device.osName}, #{device.osVersion})" for="name" />
+                        </p:column>
+                        <p:column headerText="Active" sortBy="#{device.totalActives}" width="55" >
+                            <h:outputText value="#{device.totalActives}" >
+                                <f:convertNumber pattern="#" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="VIP" sortBy="#{device.vips}" width="40" >
+                            <h:outputText value="#{device.vips}" >
+                                <f:convertNumber pattern="#" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Up By" sortBy="#{device.theoHWDiffFromLastMonth}"  >
+                            £ <h:outputText value="#{device.theoHWDiffFromLastMonth}" >
+                                <f:convertNumber groupingUsed="true" maxFractionDigits="2" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="%" sortBy="#{device.theoHWDiffFromLastMonth / device.previousMonths.get(0).theoreticalHW * 100}" width="60" >
+                            <h:outputText value="#{device.theoHWDiffFromLastMonth / device.previousMonths.get(0).theoreticalHW * 100}" 
+                                          style="color: #{device.theoHWDiffFromLastMonth / device.previousMonths.get(0).theoreticalHW * 100 gt 400 ? 'green' : device.theoHWDiffFromLastMonth / device.previousMonths.get(0).theoreticalHW * 100 gt 200 ? 'blue' : ''}">
+                                <f:convertNumber pattern="#.#" />
+                            </h:outputText> %
+                        </p:column>
+                        <p:column headerText="" width="16" style="width: 16px;" >
+                            <p:commandLink actionListener="#{compactListController.setSelectedDeviceInfo(device)}" action="#{compactListController.createLineModels()}"
+                                           oncomplete="PF('deviceCompInfoWar').show();" update=":deviceCompInfoForm">
+                                <p:graphicImage value="/images/#{device.rankStatus gt 0 ? 'green_up_arrow.gif' : device.rankStatus lt 0 ? 'red_down_arrow.gif' : 'same_arrow.gif'}" />
+                            </p:commandLink>
+                        </p:column>
+                    </p:dataTable>
+
+                    <p:dataTable id="top30FadingDevicesDT" value="#{dashboardController.top30FadingDevices}" var="device" 
+                                 style="width: 100%; margin-top: 3px; display: none" >
+                        <p:column headerText="Name" width="40%" >
+                            <h:outputText id="name" value="#{device.marketingName} (#{device.osName}, #{device.osVersion})" 
+                                          style="color: #{device.theoHWDiffFromLastMonth / device.previousMonths.get(0).theoreticalHW * 100 lt -80 ? 'red' : device.theoHWDiffFromLastMonth / device.previousMonths.get(0).theoreticalHW * 100 lt -50 ? 'blue' : ''}" />
+                            <p:tooltip value="#{device.marketingName} (#{device.osName}, #{device.osVersion})" for="name" />
+                        </p:column>
+                        <p:column headerText="Active" sortBy="#{device.totalActives}" width="55" >
+                            <h:outputText value="#{device.totalActives}" >
+                                <f:convertNumber pattern="#" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="VIP" sortBy="#{device.vips}" width="40" >
+                            <h:outputText value="#{device.vips}" >
+                                <f:convertNumber pattern="#" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Up For" sortBy="#{device.theoHWDiffFromLastMonth}"  >
+                            £ <h:outputText value="#{device.theoHWDiffFromLastMonth}" >
+                                <f:convertNumber groupingUsed="true" maxFractionDigits="2" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="%" sortBy="#{device.theoHWDiffFromLastMonth / device.previousMonths.get(0).theoreticalHW * 100}" width="60" >
+                            <h:outputText value="#{device.theoHWDiffFromLastMonth / device.previousMonths.get(0).theoreticalHW * 100}" 
+                                          style="color: #{device.theoHWDiffFromLastMonth / device.previousMonths.get(0).theoreticalHW * 100 lt -200 ? 'red' : device.theoHWDiffFromLastMonth / device.previousMonths.get(0).theoreticalHW * 100 lt -100 ? 'blue' : ''}">
+                                <f:convertNumber pattern="#.#" />
+                            </h:outputText> %
+                        </p:column>
+                        <p:column headerText="" width="16" style="width: 16px;" >
+                            <p:commandLink actionListener="#{compactListController.setSelectedDeviceInfo(device)}" action="#{compactListController.createLineModels()}"
+                                           oncomplete="PF('deviceCompInfoWar').show();" update=":deviceCompInfoForm">
+                                <p:graphicImage value="/images/#{device.rankStatus gt 0 ? 'green_up_arrow.gif' : device.rankStatus lt 0 ? 'red_down_arrow.gif' : 'same_arrow.gif'}" />
+                            </p:commandLink>
+                        </p:column>
+                    </p:dataTable>
+                    <f:facet name="footer">
+                        <p:button id="expandSecondPanel" style="float: right; margin-right: 10px;" icon="ui-icon-circle-triangle-s" value="Expand" widgetVar="expandSecondPanelWar" 
+                                  onclick="return manageExpandCollapseSecondPanel()" />
+                        <br/>
+                    </f:facet>
+                </p:panel>
+
+                <p:panel id="androidbrowserChartsPanel" header="Android - Most Profitable Browsers (July) - UK" style="min-width: 450px; width: 450px; margin-left: 20px; margin-bottom: 30px;" closable="true" toggleable="true" >
+                    <p:chart type="pie" model="#{dashboardController.androidPieModel}" style="width:400px;height:300px" rendered="#{not empty dashboardController.androidPieModel}">
+                        <p:ajax event="itemSelect" listener="#{dashboardController.itemSelect}"  />
+                    </p:chart>
+                </p:panel>
+
+                <p:panel id="iosbrowserChartsPanel" header="iOS - Most Profitable Browsers (July) - UK" style="min-width: 450px; width: 450px; margin-left: 20px; margin-bottom: 30px;" closable="true" toggleable="true" >
+                    <p:chart type="pie" model="#{dashboardController.iosPieModel}" style="width:400px;height:300px" rendered="#{not empty dashboardController.iosPieModel}"  >
+                        <p:ajax event="itemSelect" listener="#{dashboardController.itemSelect}" />
+                    </p:chart>
+                </p:panel>
+                
+                <p:panel id="androidPopBrowserChartsPanel" header="Android - Popular Browsers (July) - UK" style="min-width: 450px; width: 450px; margin-left: 20px; margin-bottom: 20px; height: 380px;" closable="true" toggleable="true" >
+                    <p:chart type="pie" model="#{dashboardController.androidPopPieModel}" style="width:400px;height:300px" rendered="#{not empty dashboardController.androidPopPieModel}">
+                        <p:ajax event="itemSelect" listener="#{dashboardController.itemSelect}"  />
+                    </p:chart>
+                </p:panel>
+
+                <p:panel id="iosPopBrowserChartsPanel" header="iOS - Popular Browsers (July) - UK" style="min-width: 450px; width: 450px; margin-left: 20px; margin-bottom: 30px;" closable="true" toggleable="true" >
+                    <p:chart type="pie" model="#{dashboardController.iosPopPieModel}" style="width:400px;height:300px" rendered="#{not empty dashboardController.iosPopPieModel}"  >
+                        <p:ajax event="itemSelect" listener="#{dashboardController.itemSelect}" />
+                    </p:chart>
+                </p:panel>
+
+
+            </p:dashboard>
+
+            <div style="clear:both" />
+        </o:form>
+
+        <p:dialog closeOnEscape="true" minWidth="700" minHeight="400" widgetVar="deviceCompInfoWar">
+            <o:form id="deviceCompInfoForm">
+                <p:panelGrid columns="6" rendered="#{not empty compactListController.selectedDeviceInfo}">
+                    <f:facet name="header">
+                        #{compactListController.selectedDeviceInfo.firstDevice.marketingName} | #{compactListController.selectedDeviceInfo.firstDevice.osName} | #{compactListController.selectedDeviceInfo.firstDevice.osVersion}
+                    </f:facet>
+                    <h:outputText value="" />
+                    <h:outputText value="Total Actives" />
+                    <h:outputText value="VIPs" />
+                    <h:outputText value="Theo HW" />
+                    <h:outputText value="Theo HW %" />
+                    <h:outputText value="Rank" />
+
+                    <h:outputText value="This Month" style="color: green" />
+                    <h:outputText value="#{compactListController.selectedDeviceInfo.firstDevice.totalActives}" style="color: green" >
+                        <f:convertNumber pattern="#" />
+                    </h:outputText>
+                    <h:outputText value="#{compactListController.selectedDeviceInfo.firstDevice.vips}" style="color: green" >
+                        <f:convertNumber pattern="#" />
+                    </h:outputText>
+                    <h:outputText value="#{compactListController.selectedDeviceInfo.firstDevice.theoreticalHW}" style="color: green" >
+                        <f:convertNumber groupingUsed="true" maxFractionDigits="2" />
+                    </h:outputText>
+                    <h:outputText value="#{compactListController.selectedDeviceInfo.firstDevice.percentageTheo * 100}" style="color: green" >
+                        <f:convertNumber pattern="#.##" />
+                    </h:outputText>
+                    <h:outputText value="#{compactListController.selectedDeviceInfo.firstDevice.theoRank}" style="color: green" >
+                        <f:convertNumber pattern="#" />
+                    </h:outputText>
+
+                    <h:outputText value="Last Month" style="color: blue" />
+                    <h:outputText value="#{compactListController.selectedDeviceInfo.previousMonths[0].totalActives}" style="color: blue" >
+                        <f:convertNumber pattern="#" />
+                    </h:outputText>
+                    <h:outputText value="#{compactListController.selectedDeviceInfo.previousMonths[0].vips}" style="color: blue" >
+                        <f:convertNumber pattern="#" />
+                    </h:outputText>
+                    <h:outputText value="#{compactListController.selectedDeviceInfo.previousMonths[0].theoreticalHW}" style="color: blue" >
+                        <f:convertNumber groupingUsed="true" maxFractionDigits="2" />
+                    </h:outputText>
+                    <h:outputText value="#{compactListController.selectedDeviceInfo.previousMonths[0].percentageTheo * 100}" style="color: blue" >
+                        <f:convertNumber pattern="#.##" />
+                    </h:outputText>
+                    <h:outputText value="#{compactListController.selectedDeviceInfo.previousMonths[0].theoRank}" style="color: blue" >
+                        <f:convertNumber pattern="#" />
+                    </h:outputText>
+                </p:panelGrid>
+
+                <br/>
+                <p:separator />
+                <br/>
+
+                <p:selectOneMenu id="console" value="#{compactListController.showChart}" style="width:125px; float: right; margin-right: 5px; margin-left: 5px;">
+                    <p:ajax event="change" update="@form" />
+                    <f:selectItem itemLabel="Theo HW" itemValue="1" />
+                    <f:selectItem itemLabel="Theo Rank" itemValue="2" />
+                    <f:selectItem itemLabel="Total Actives" itemValue="3" />
+                </p:selectOneMenu>
+                <h:outputText value="View Chart:" style="float: right; top: 4px; margin-top: 3px;" />
+                <br/>
+                <p:separator />
+                <br/>
+
+                <p:chart type="line" model="#{compactListController.theoHWLineModel}" style="height:300px;" rendered="#{compactListController.showChart eq 1}"/>
+                <p:chart type="line" model="#{compactListController.theoRankLineModel}" style="height:300px;" rendered="#{compactListController.showChart eq 2}"/>
+                <p:chart type="line" model="#{compactListController.totalActivesLineModel}" style="height:300px;" rendered="#{compactListController.showChart eq 3}"/>
+            </o:form>
+        </p:dialog>
+    </ui:define>
+</ui:composition>

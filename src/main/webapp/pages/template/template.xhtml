@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui" 
+      xmlns:o="http://omnifaces.org/ui">
+
+    <f:view contentType="text/html">
+        <h:head>
+            <f:facet name="first">
+                <meta content='text/html; charset=UTF-8' http-equiv="Content-Type"/>
+                <title>Awesome Device List</title>
+
+                <link type="text/css" rel="stylesheet" href="#{request.contextPath}/css/style.css" />
+
+                <h:outputScript library="primefaces" name="jquery/jquery.js" target="head" />
+            </f:facet>
+            
+            <script type="text/javascript" src="#{request.contextPath}/javascript/main.js"  />
+
+            <f:facet name="last">
+                
+                <script type="text/javascript" src="#{request.contextPath}/javascript/util.js"  />
+                <script type="text/javascript" src="#{request.contextPath}/javascript/fun.js"  />
+            </f:facet>
+            <!-- Piwik -->
+            <script type="text/javascript">
+                var _paq = _paq || [];
+                _paq.push(['trackPageView']);
+                _paq.push(['enableLinkTracking']);
+                (function () {
+                    var u = "//gl02232m.gamesys.corp:8888/piwik/";
+                    _paq.push(['setTrackerUrl', u + 'piwik.php']);
+                    _paq.push(['setSiteId', 11]);
+                    var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
+                    g.type = 'text/javascript';
+                    g.async = true;
+                    g.defer = true;
+                    g.src = u + 'piwik.js';
+                    s.parentNode.insertBefore(g, s);
+                })();
+            </script>
+            <noscript><p><img src="//gl02232m.gamesys.corp:8890/piwik/piwik.php?idsite=11" style="border:0;" alt="" /></p></noscript>
+            <!-- End Piwik Code -->
+        </h:head>
+
+        <h:body onmouseover="window.focus()">
+
+            <p:layout fullPage="true">
+
+                <p:layoutUnit position="north" size="80" resizable="true" closable="true" collapsible="true">
+                    <o:form>
+                        <img src="#{request.contextPath}/images/groovy-logo-small.jpg" alt="hound logo" style="float: left; margin: 0px; padding: 0px;" />
+                        <h:panelGrid style="float: left" cellspacing="0" cellpadding="0" >
+                            <p style="margin-top: 3px; color: #90130c">Groovy List <sup style="font-size: smaller">beta</sup></p>
+                            <p style="font-family: fantasy; margin: 0px">I really want you to really want me!</p>
+                        </h:panelGrid>
+                        <p:messages autoUpdate="true" globalOnly="true" style="float: right; margin-right: 1%" closable="true" />
+                        <p:poll autoStart="true" async="true" interval="30" listener="#{funFacts.tellAStory()}" oncomplete="checkFunFactPoll()" widgetVar="funFactPollWar" />
+                    </o:form>
+                </p:layoutUnit>
+
+                <p:layoutUnit position="west" size="150" header="Tools" collapsible="true" collapsed="true">
+                    <p:menu style="width: 90%;" >
+                        <p:submenu label="Menu">
+                            <p:menuitem id="dashboardMenuItem" value="Dashboard" url="/pages/dashboard.xhtml" />
+                            <p:menuitem id="compactDevicesMenuItem" value="Compact List" url="/pages/compactDeviceList.xhtml" />
+                            <p:menuitem id="browserInfoMenuItem" value="Browser List" url="/pages/browserInfoList.xhtml" />
+                            <p:menuitem id="gameInfoMenuItem" value="Game List" url="/pages/gameInfoList.xhtml" />
+                            <p:menuitem id="fullDevicesMenuItem" value="Full List" url="/pages/fullDeviceList.xhtml" style="display: none" />
+                            <p:menuitem id="prevDevicesMenuItem" value="Last Month" url="/pages/previousDeviceList.xhtml" style="display: none" />
+                        </p:submenu>
+                    </p:menu>
+                </p:layoutUnit>
+
+                <p:layoutUnit position="center">
+                    <ui:insert name="content">I don't know how you arrived here. Eh, I don't care...</ui:insert>
+                </p:layoutUnit>
+
+                <p:layoutUnit position="south" size="30" closable="true" collapsible="true">
+                    by @iulian.dafinoiu
+                </p:layoutUnit>
+
+            </p:layout>
+
+        </h:body>
+
+    </f:view>
+</html>
+
